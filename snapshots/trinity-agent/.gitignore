@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.log
+
+# Agent session notes (local only)
+.agent_memory.json
+
+# Research corpus (downloaded docs for synthesis, not source code)
+.research/
+
+# Runtime artifacts (the A2A audit log writes here by default)
+logs/
+
+# Local scratch / debug scripts (kept on disk, never committed)
+_debug_*.js

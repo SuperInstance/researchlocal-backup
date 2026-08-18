@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "vessel.json — TZ Pro Agent vessel + provider configuration",
+  "description": "The single source of truth for which vessel this install is for, where its captures live, and which providers the agent may use. Editable by humans AND by the agent itself (vibe-coded).",
+  "type": "object",
+  "required": ["vessel", "paths", "providers"],
+  "properties": {
+    "vessel": {
+      "type": "object",
+      "required": ["name", "id"],
+      "properties": {
+        "name": {"type": "string", "description": "Human name, e.g. 'F/V Eileen'"},
+        "id":   {"type": "string", "description": "Stable id used in file paths, e.g. 'fv-eileen'"},
+        "callsign": {"type": "string"},
+        "skipper": {"type": "string"},
+        "home_port": {"type": "string"},
+        "region": {"type": "string"}
+      }
+    },
+    "paths": {
+      "type": "object",
+      "properties": {
+        "captures_dir":   {"type": "string", "description": "Where capture_v3.py drops its 10-min captures."},
+        "state_jsonl":    {"type": "string", "description": "Append-only vessel_state.jsonl from the NMEA bridge."},
+        "analyses_dir":   {"type": "string", "description": "Where analyzer output goes (markdown + json sidecars)."},
+        "transcripts_dir":{"type": "string", "description": "Where voice notes / chat transcripts are stored."},
+        "workspace_root": {"type": "string", "description": "Root for the local_file provider's RAG corpus."}
+      }
+    },
+    "providers": {
+      "type": "object",
+      "description": "Each entry is {enabled, config, models}. The 'config' dict is provider-specific (api_key, base_url, etc).",
+      "properties": {
+        "ollama":         {"$ref": "#/definitions/providerEntry"},
+        "deepinfra":      {"$ref": "#/definitions/providerEntry"},
+        "openai":         {"$ref": "#/definitions/providerEntry"},
+        "openrouter":     {"$ref": "#/definitions/providerEntry"},
+        "grok":           {"$ref": "#/definitions/providerEntry"},
+        "deepseek":       {"$ref": "#/definitions/providerEntry"},
+        "zai":            {"$ref": "#/definitions/providerEntry"},
+        "browser_native": {"$ref": "#/definitions/providerEntry"},
+        "local_file":     {"$ref": "#/definitions/providerEntry"}
+      }
+    },
+    "task_routing": {
+      "type": "object",
+      "description": "Which provider to call for each cadence / task. Each entry is a list of {provider, model} tried in order; first one that reports available wins.",
+      "properties": {
+        "perception_check_1min": {"type": "array", "items": {"$ref": "#/definitions/route"}},
+        "screenshot_10min":      {"type": "array", "items": {"$ref": "#/definitions/route"}},
+        "hourly_review":         {"type": "array", "items": {"$ref": "#/definitions/route"}},
+        "evening_debrief":       {"type": "array", "items": {"$ref": "#/definitions/route"}},
+        "midday_report":         {"type": "array", "items": {"$ref": "#/definitions/route"}},
+        "chat_quick":            {"type": "array", "items": {"$ref": "#/definitions/route"}},
+        "chat_heavy":            {"type": "array", "items": {"$ref": "#/definitions/route"}},
+        "vision_analyze":        {"type": "array", "items": {"$ref": "#/definitions/route"}},
+        "embedding":             {"type": "array", "items": {"$ref": "#/definitions/route"}}
+      }
+    }
+  },
+  "definitions": {
+    "providerEntry": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "config":  {"type": "object"},
+        "models":  {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "route": {
+      "type": "object",
+      "required": ["provider"],
+      "properties": {
+        "provider": {"type": "string"},
+        "model":    {"type": "string"},
+        "temperature": {"type": "number"},
+        "max_tokens":  {"type": "integer"}
+      }
+    }
+  }
+}

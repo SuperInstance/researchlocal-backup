@@ -1,0 +1,118 @@
+{
+  "$schema": "./schema/vessel.schema.json",
+  "vessel": {
+    "name": "F/V Eileen",
+    "id": "fv-eileen",
+    "callsign": "",
+    "skipper": "Casey DiGennaro",
+    "home_port": "Ketchikan, AK",
+    "region": "Southeast Alaska"
+  },
+  "paths": {
+    "captures_dir":    "C:/Users/casey/tzpro-agent-data/vessels/fv-eileen/feeds/echogram-screenshot",
+    "state_jsonl":     "C:/Users/casey/tzpro-agent/vessel_state.jsonl",
+    "analyses_dir":    "C:/Users/casey/tzpro-agent-data/vessels/fv-eileen/analyses",
+    "transcripts_dir": "C:/Users/casey/tzpro-agent-data/vessels/fv-eileen/transcripts",
+    "workspace_root":  "C:/Users/casey/tzpro-agent-data/vessels/fv-eileen"
+  },
+  "providers": {
+    "ollama": {
+      "enabled": true,
+      "config": { "base_url": "http://127.0.0.1:11434", "timeout_s": 120 },
+      "models": ["granite4.1:8b", "gemma4:12b", "qwen3:4b", "nomic-embed-text:latest"]
+    },
+    "deepinfra": {
+      "enabled": false,
+      "config": {},
+      "models": [
+        "deepseek-ai/DeepSeek-V3-Flash",
+        "deepseek-ai/DeepSeek-V3",
+        "Qwen/Qwen3-Next-80B-A3B-Instruct",
+        "meta-llama/Llama-3.3-70B-Instruct",
+        "google/gemini-2.0-flash-001",
+        "openai/gpt-4o-mini"
+      ],
+      "key_help_url": "https://deepinfra.com/dash/api_keys"
+    },
+    "openai": {
+      "enabled": false,
+      "config": {},
+      "models": ["gpt-4o-mini", "gpt-4o"],
+      "key_help_url": "https://platform.openai.com/api-keys"
+    },
+    "openrouter": {
+      "enabled": false,
+      "config": {},
+      "models": ["deepseek/deepseek-chat-v3-flash"],
+      "key_help_url": "https://openrouter.ai/settings/keys"
+    },
+    "grok": {
+      "enabled": false,
+      "config": {},
+      "models": ["grok-2-mini"],
+      "key_help_url": "https://console.x.ai/"
+    },
+    "deepseek": {
+      "enabled": false,
+      "config": {},
+      "models": ["deepseek-chat"],
+      "key_help_url": "https://platform.deepseek.com/api_keys"
+    },
+    "zai": {
+      "enabled": false,
+      "config": {},
+      "models": ["glm-4.5-flash"],
+      "key_help_url": "https://z.ai/manage-apikey/apikey-list"
+    },
+    "browser_native": {
+      "enabled": false,
+      "config": { "cdp_url": "", "extension_endpoint": "" },
+      "models": ["browser_default"]
+    },
+    "local_file": {
+      "enabled": true,
+      "config": { "workspace_root": "C:/Users/casey/tzpro-agent-data/vessels/fv-eileen" },
+      "models": ["workspace_grep"]
+    }
+  },
+  "task_routing": {
+    "perception_check_1min": [
+      { "provider": "local_file" }
+    ],
+    "screenshot_10min": [
+      { "provider": "ollama", "model": "granite4.1:8b", "max_tokens": 600 },
+      { "provider": "deepinfra", "model": "deepseek-ai/DeepSeek-V3-Flash", "max_tokens": 600 }
+    ],
+    "hourly_review": [
+      { "provider": "deepinfra", "model": "deepseek-ai/DeepSeek-V3-Flash", "max_tokens": 1500 },
+      { "provider": "ollama", "model": "gemma4:12b", "max_tokens": 1500 },
+      { "provider": "local_file" }
+    ],
+    "evening_debrief": [
+      { "provider": "deepinfra", "model": "deepseek-ai/DeepSeek-V3", "max_tokens": 3000 },
+      { "provider": "ollama", "model": "gemma4:12b", "max_tokens": 3000 },
+      { "provider": "local_file" }
+    ],
+    "midday_report": [
+      { "provider": "deepinfra", "model": "deepseek-ai/DeepSeek-V3-Flash", "max_tokens": 1500 },
+      { "provider": "ollama", "model": "granite4.1:8b", "max_tokens": 1500 }
+    ],
+    "chat_quick": [
+      { "provider": "deepinfra", "model": "deepseek-ai/DeepSeek-V3-Flash", "max_tokens": 800 },
+      { "provider": "ollama", "model": "granite4.1:8b", "max_tokens": 800 },
+      { "provider": "local_file" }
+    ],
+    "chat_heavy": [
+      { "provider": "deepinfra", "model": "deepseek-ai/DeepSeek-V3", "max_tokens": 2000 },
+      { "provider": "ollama", "model": "gemma4:12b", "max_tokens": 2000 },
+      { "provider": "local_file" }
+    ],
+    "vision_analyze": [
+      { "provider": "deepinfra", "model": "google/gemini-2.0-flash-001" },
+      { "provider": "ollama", "model": "gemma4:12b" }
+    ],
+    "embedding": [
+      { "provider": "ollama", "model": "nomic-embed-text:latest" }
+    ]
+  }
+}

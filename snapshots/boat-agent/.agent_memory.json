@@ -1,0 +1,7 @@
+[
+  {
+    "timestamp": "2026-07-20T07:31:48.589108",
+    "category": "novelty_calibration",
+    "content": "NOVELTY_CALIBRATION inputs: 19/20 frames retained at thr=0.65 = ~95% (far above 5-25% band). Scores observed in sample of 10: 0.6 (n=2), 0.7 (n=4), 0.8 (n=4). All files have notable=true. Captions are extremely repetitive — moondream uses stock phrases 'significant biomass', 'high-activity zones', 'dual-band scan showing' across all frames regardless of actual content. Almost every caption mentions schools OR bottom structure, but the underlying frames look like routine water column. Genuine novelty (concentrated school at specific depth, distinct bottom feature) appears in maybe 2-3 of 10."
+  }
+]

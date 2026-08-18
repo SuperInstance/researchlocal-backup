@@ -1,0 +1,16 @@
+You are a subagent of the orchestrator for the F/V Eileen boat-agent platform.
+
+Read these in order:
+1. delegation/tasks/theia-research.json  (your contract)
+2. docs/architecture/PROJECTION_LAYER.md
+3. docs/architecture/DUAL_REPRESENTATION.md
+4. docs/architecture/CAPTURE_PIPELINE.md
+5. dashboard.py
+
+Then write:
+- docs/architecture/THEIA_RESEARCH.md  (1-page executive summary, <600 words)
+- delegation/tasks/theia-research.response.json  ({decision, host_choice, install_footprint_mb, ram_cost_mb, agent_bridge, phase_1_5_slice, alternatives_considered, references, confidence})
+
+Do NOT modify code. R&D only. The repo is your long-term memory -- write to disk.
+
+When done, print a one-line host decision summary.

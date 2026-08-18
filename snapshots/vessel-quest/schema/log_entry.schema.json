@@ -1,0 +1,411 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vessel-quest.dev/schema/log_entry.schema.json",
+  "title": "Log Entry",
+  "description": "The fundamental unit of Vessel Quest. Every log entry is attention logged. An entry records what the vessel did, what the vessel saw, and what the captain noticed. It is the proof that attention was paid. The entry is the receipt; the XP is the measure; the qualitative change in the captain is the point. The logbook is the backup drive for the captain's brain.",
+  "type": "object",
+  "required": [
+    "entry_id",
+    "timestamp_ns",
+    "vessel_id",
+    "captain_id",
+    "xp_awarded",
+    "fishcoin_awarded",
+    "attention_quality"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "entry_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this log entry. UUID v4 recommended for global uniqueness across vessels and seasons. Once written, an entry is never deleted -- only annotated."
+    },
+    "timestamp_ns": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9000000000000000000,
+      "description": "UTC timestamp in nanoseconds since the Unix epoch (1970-01-01T00:00:00Z). Nanosecond precision prevents collisions when multiple entries are created in rapid succession (e.g., haul sorting). Maximum value accommodates dates up to approximately year 2255."
+    },
+    "vessel_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}-[A-Z]{2}-[A-Z0-9]+-\\d+$",
+      "description": "Vessel identifier in ISO-style format: COUNTRY-REGION-NAME-NUMBER. The name component uses uppercase letters and digits (vowels may be stripped for brevity). Example: 'US-AK-FVEILEEN-51' for the F/V EILEEN, home-ported in Alaska, 51 feet LOA.",
+      "examples": [
+        "US-AK-FVEILEEN-51",
+        "US-WA-FVNORTHL-38",
+        "US-ME-FVGRACE-45"
+      ]
+    },
+    "captain_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Identifier for the captain who authored this entry. Typically a username, USCG license number, or internal system ID. The captain is the player. The crew are party members.",
+      "examples": [
+        "casey",
+        "uscg-2854193",
+        "capt.kowalski"
+      ]
+    },
+    "location": {
+      "type": ["object", "null"],
+      "description": "Geographic and maritime context for the entry. Where the vessel was when attention was paid. Null is valid for entries with no position fix.",
+      "required": ["lat", "lon", "h3_index"],
+      "additionalProperties": false,
+      "properties": {
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Latitude in decimal degrees (WGS 84). Positive for north, negative for south. Precision should be to at least 5 decimal places (~1 meter) for meaningful fishing grounds data."
+        },
+        "lon": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Longitude in decimal degrees (WGS 84). Positive for east, negative for west."
+        },
+        "h3_index": {
+          "type": "string",
+          "description": "H3 hexagonal grid index at resolution 7 (~5.16 km² edge area), or a stable coordinate-derived placeholder ('h3-LAT-LON') when a real H3 client is unavailable. Provides spatial bucketing for queries like 'what was caught in this cell?' and enables pattern detection across seasons. Resolution 7 is chosen as a balance between granularity and data density for fishing grounds."
+        },
+        "depth_m": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 11000,
+          "description": "Water depth at the vessel position, in meters. Derived from sounder or chart data. Maximum value accommodates the deepest ocean trenches (Mariana Trench is ~10,935 m). Omit if operating in shallows with no depth reading."
+        },
+        "sea_state": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "Sea state on the Douglas Sea Scale (0-12). 0 = calm (mirror-like), 5 = rough (2.5-4m waves), 9 = phenomenal (14m+ waves), 12 = hurricane. This is the difficulty setting."
+        }
+      }
+    },
+    "catch": {
+      "type": ["array", "null"],
+      "description": "Species landed or released during the period this entry covers. An empty array or null is valid -- not every entry has catch. Transit entries, maintenance entries, and weather observations are all legitimate log entries with no catch.",
+      "items": {
+        "type": "object",
+        "required": ["species", "method"],
+        "additionalProperties": false,
+        "properties": {
+          "species": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Species name. Common name recommended for readability; scientific name stored in a separate field if needed. The fish are the NPCs.",
+            "examples": [
+              "sockeye salmon",
+              "chinook salmon",
+              "Pacific halibut",
+              "black cod",
+              "coho salmon",
+              "chum salmon",
+              "pink salmon",
+              "Dungeness crab"
+            ]
+          },
+          "weight_lb": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "Round weight (whole, un-gutted) in pounds. Use 0 for catch-and-release entries where weight is unknown. Precision to one decimal place is sufficient."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of individual fish. For longline sets, this is the count of fish boated. For troll, count of fish landed."
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "power troll",
+              "hand troll",
+              "troll",
+              "longline",
+              "pot",
+              "seine",
+              "gillnet",
+              "jig",
+              "dive",
+              "handline",
+              "other",
+              "unknown"
+            ],
+            "description": "Gear or method used to take this catch. 'troll' is accepted as shorthand for 'power troll' or 'hand troll'. 'unknown' is a placeholder used by the quick-log parser when the method is not specified; the captain can refine it later. The gear type shapes what kind of attention is required -- trolling demands attention to speed and depth; longlining demands attention to set location and soak time."
+          },
+          "disposition": {
+            "type": "string",
+            "enum": ["retained", "released", "unknown"],
+            "description": "What happened to the catch. 'retained' = boated and kept, 'released' = returned to the water, 'unknown' = not specified (default). Used by conservation achievements."
+          }
+        }
+      }
+    },
+    "weather": {
+      "type": ["object", "null"],
+      "description": "Meteorological and oceanographic conditions at the time of the entry. Weather is the difficulty setting. These fields capture the environmental context that a great fisherman remembers and a novice does not.",
+      "additionalProperties": false,
+      "properties": {
+        "wind_dir": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 359,
+          "description": "Wind direction in degrees from which the wind is blowing (0 = north, 90 = east, 180 = south, 270 = west). NMEA-standard meteorological direction."
+        },
+        "wind_kts": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 200,
+          "description": "Wind speed in knots. Sustained speed preferred; gusts noted in the notes field."
+        },
+        "air_temp_c": {
+          "type": "number",
+          "minimum": -60,
+          "maximum": 60,
+          "description": "Air temperature in degrees Celsius. Range covers all operational fishing environments."
+        },
+        "sea_temp_c": {
+          "type": "number",
+          "minimum": -5,
+          "maximum": 40,
+          "description": "Sea surface temperature in degrees Celsius. This is one of the most valuable data points a captain can record -- water temperature on the day the sockeye came through. Years of sea_temp_c data is a dataset that cannot be bought."
+        },
+        "moon_phase": {
+          "type": "string",
+          "enum": [
+            "new",
+            "waxing crescent",
+            "first quarter",
+            "waxing gibbous",
+            "full",
+            "waning gibbous",
+            "last quarter",
+            "waning crescent"
+          ],
+          "description": "Moon phase at the time of the entry. The moon phase when the halibut moved shallow. This is the kind of data that separates a good fisherman from a great one."
+        },
+        "tide_state": {
+          "type": "string",
+          "enum": [
+            "slack flood",
+            "flood",
+            "slack ebb",
+            "ebb",
+            "slack",
+            "high",
+            "low",
+            "rising",
+            "falling"
+          ],
+          "description": "Tide state at the time of the entry. Flood = incoming/rising tide, Ebb = outgoing/falling tide. Slack = the transition between. High/low/Rising/falling are accepted as shorthand by the quick-log parser. Tide state is critical for salmon trolling, halibut anchoring, and many other fisheries."
+        }
+      }
+    },
+    "gear": {
+      "type": ["object", "null"],
+      "description": "Gear deployment details. Records how the vessel fished during this entry period.",
+      "additionalProperties": false,
+      "properties": {
+        "gear_type": {
+          "type": "string",
+          "enum": [
+            "troll",
+            "longline",
+            "pot",
+            "seine",
+            "gillnet",
+            "jig",
+            "dive",
+            "handline",
+            "none"
+          ],
+          "description": "Primary gear type deployed. 'none' for transit, maintenance, or observation-only entries."
+        },
+        "hours_fished": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 72,
+          "description": "Duration of active fishing effort in hours. For trolling, time gear was in the water. For longlining, time from set completion to haul start (soak time). Maximum of 72 covers extended longline soaks."
+        },
+        "depth_fished_m": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3000,
+          "description": "Target fishing depth in meters. For trolling, depth of the cannonball or wire angle. For longlining, the depth of the shallowest hook."
+        },
+        "lost_gear": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether any gear was lost during this fishing period. Lost gear is ghost fishing mortality and a conservation concern. This field also feeds into the conservation achievement lineage."
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 4096,
+      "description": "Optional free-text notes from the captain. This is where the captain writes what the numbers cannot capture: 'bird activity on the slick', 'engine sounded off at 0400', 'saw a humpback breach three times off the port quarter'. After 1,000 entries, these notes form a portrait of someone paying attention to everything."
+    },
+    "xp_awarded": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000,
+      "description": "XP (experience points) awarded for this entry. XP is not a reward for completing tasks -- XP is attention logged. The entry is the proof; the number is the measure. Base XP is typically 5-15 per entry; bonus XP for detailed weather, precise catch, or rich notes. A Level 6 Captain is someone who has paid more attention, not someone who has done more work."
+    },
+    "fishcoin_awarded": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 500,
+      "description": "FishCoin awarded for this entry. FishCoin is the internal economy used for crew beer money, gear upgrades, and port favors. Awarded alongside XP but tracked separately because it is spendable."
+    },
+    "achievements_unlocked": {
+      "type": "array",
+      "description": "Achievement IDs unlocked by this entry. Achievements are not invented -- they are revealed. When the system says 'Chronicler unlocked,' it is naming a pattern of attention that was already there, hidden by routine. This array is typically empty; entries that unlock achievements are rare and significant.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$",
+        "description": "Achievement ID in kebab-case, matching the achievement schema."
+      },
+      "default": []
+    },
+    "attention_quality": {
+      "type": "string",
+      "enum": ["deep", "routine", "perfunctory"],
+      "description": "Captain's self-assessment of the quality of attention behind this entry. This field is the heart of authentic gamification. You cannot fake a receipt for attention you did not pay. The game knows. More importantly: you know. 'deep' = fully present, rich observation, every field filled with care. 'routine' = standard entry, adequate detail, the day's work logged. 'perfunctory' = minimal entry, just the facts, attention elsewhere. XP modifiers may apply based on this self-rating, but the captain is the source of truth."
+    },
+    "entry_type": {
+      "type": "string",
+      "enum": ["fishing", "transit", "maintenance", "safety", "weather", "other"],
+      "default": "other",
+      "description": "Category of entry. If not explicitly set, the engine infers 'fishing' when catch or deployed gear is present, else 'transit'. Used by quest criteria to filter entries (e.g., 'fishing' entries only)."
+    }
+  },
+  "examples": [
+    {
+      "entry_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "timestamp_ns": 1753478400000000000,
+      "vessel_id": "US-AK-FVEILEEN-51",
+      "captain_id": "casey",
+      "location": {
+        "lat": 56.80134,
+        "lon": -135.30278,
+        "h3_index": "85283083fffffff",
+        "depth_m": 73,
+        "sea_state": 2
+      },
+      "catch": [
+        {
+          "species": "sockeye salmon",
+          "weight_lb": 8.5,
+          "count": 12,
+          "method": "power troll"
+        },
+        {
+          "species": "coho salmon",
+          "weight_lb": 6.0,
+          "count": 3,
+          "method": "power troll"
+        }
+      ],
+      "weather": {
+        "wind_dir": 225,
+        "wind_kts": 8,
+        "air_temp_c": 11.0,
+        "sea_temp_c": 9.5,
+        "moon_phase": "waxing crescent",
+        "tide_state": "flood"
+      },
+      "gear": {
+        "gear_type": "troll",
+        "hours_fished": 4.5,
+        "depth_fished_m": 15,
+        "lost_gear": false
+      },
+      "notes": "Sockeye came through on the flood. Bird activity on the slick. Wire angle 15 degrees on the port side, 22 on starboard. Coffee is good.",
+      "xp_awarded": 15,
+      "fishcoin_awarded": 8,
+      "achievements_unlocked": ["chronicler"],
+      "attention_quality": "deep"
+    },
+    {
+      "entry_id": "b2c3d4e5-f678-9012-abcd-ef2345678901",
+      "timestamp_ns": 1753564800000000000,
+      "vessel_id": "US-AK-FVEILEEN-51",
+      "captain_id": "casey",
+      "location": {
+        "lat": 56.79550,
+        "lon": -135.28910,
+        "h3_index": "85283097fffffff",
+        "depth_m": 45,
+        "sea_state": 1
+      },
+      "catch": [],
+      "weather": {
+        "wind_dir": 180,
+        "wind_kts": 5,
+        "air_temp_c": 10.0,
+        "sea_temp_c": 9.0,
+        "moon_phase": "first quarter",
+        "tide_state": "slack ebb"
+      },
+      "gear": {
+        "gear_type": "none",
+        "hours_fished": 0,
+        "depth_fished_m": 0,
+        "lost_gear": false
+      },
+      "notes": "Transit to anchorage. Engine hours: 4178.6.",
+      "xp_awarded": 5,
+      "fishcoin_awarded": 2,
+      "achievements_unlocked": [],
+      "attention_quality": "routine"
+    },
+    {
+      "entry_id": "c3d4e5f6-7890-1234-abcd-ef3456789012",
+      "timestamp_ns": 1753651200000000000,
+      "vessel_id": "US-AK-FVEILEEN-51",
+      "captain_id": "casey",
+      "location": {
+        "lat": 57.12345,
+        "lon": -135.56789,
+        "h3_index": "852830a3fffffff",
+        "depth_m": 120,
+        "sea_state": 4
+      },
+      "catch": [
+        {
+          "species": "Pacific halibut",
+          "weight_lb": 85.0,
+          "count": 4,
+          "method": "longline"
+        },
+        {
+          "species": "black cod",
+          "weight_lb": 12.0,
+          "count": 8,
+          "method": "longline"
+        }
+      ],
+      "weather": {
+        "wind_dir": 270,
+        "wind_kts": 18,
+        "air_temp_c": 7.5,
+        "sea_temp_c": 8.0,
+        "moon_phase": "full",
+        "tide_state": "ebb"
+      },
+      "gear": {
+        "gear_type": "longline",
+        "hours_fished": 18.0,
+        "depth_fished_m": 110,
+        "lost_gear": true
+      },
+      "notes": "Lost 20 hooks on rocky bottom near the pinnacles. Halibut moved shallow under the full moon. Black cod on the deeper end of the set. Noted for next year.",
+      "xp_awarded": 25,
+      "fishcoin_awarded": 15,
+      "achievements_unlocked": ["full-moon-halibut"],
+      "attention_quality": "deep"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+# Runtime logs (transient; recreated each session)
+*.log
+bridge.err.log
+bridge.out.log
+test_*.log
+
+# Secrets and runtime state (NEVER commit)
+.tzpro-agent/
+*.vault.dat
+*.broken-pre-fix.bak
+__pycache__/
+*.pyc
+
+# Local-only PowerShell debug scripts (not part of the platform)
+check_procs.ps1
+check_all.ps1
+probe_6006.ps1
+
+# IDE
+.vscode/
+.idea/
+
+# Python venvs
+.venv/
+venv/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Capture transient output (the canonical captures live in
+# tzpro-agent-data/, which is a sibling repo)
+test_capture*.png
+test_capture*.json
+
+# Runtime artifacts -- recreated each session, never committed
+.last_nmea_heartbeat
+captures/
+cascade_out/
+logs/
+memory/
+roster/
+vessel_state.jsonl
+capture_daemon.stamp.json
+delegation/tasks/*.json
+!delegation/tasks/.gitkeep

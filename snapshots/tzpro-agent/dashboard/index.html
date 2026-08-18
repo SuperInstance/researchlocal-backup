@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TZ Pro Agent — Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #1a0f0a;
+    --bg2: #2a1a12;
+    --fg: #e8d9c8;
+    --accent: #c75d3a;
+    --accent2: #672a1f;
+    --muted: #8a7565;
+    --border: #3a281e;
+    --ok: #5fb878;
+    --warn: #d4a44a;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    display: grid;
+    grid-template-columns: 320px 1fr 380px;
+    grid-template-rows: 40px 1fr 40px;
+    grid-template-areas:
+      "header header header"
+      "left   middle  right"
+      "footer footer  footer";
+  }
+  header {
+    grid-area: header;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 16px;
+    gap: 16px;
+  }
+  header .brand { color: var(--accent); font-weight: 600; }
+  header .vessel { color: var(--muted); font-size: 12px; }
+  header .spacer { flex: 1; }
+  header .lan { color: var(--muted); font-family: ui-monospace, monospace; font-size: 12px; }
+  footer {
+    grid-area: footer;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 16px; gap: 16px;
+    font-size: 12px; color: var(--muted);
+  }
+  footer input {
+    background: var(--bg); color: var(--fg); border: 1px solid var(--border);
+    padding: 4px 8px; border-radius: 4px; width: 220px;
+  }
+  footer button {
+    background: var(--accent); color: #fff; border: none;
+    padding: 4px 12px; border-radius: 4px; cursor: pointer;
+  }
+
+  /* left: file tree */
+  aside.left {
+    grid-area: left;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow: auto;
+    padding: 8px;
+  }
+  .distance-filter {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px; border-bottom: 1px solid var(--border); margin-bottom: 8px;
+  }
+  .distance-filter label { font-size: 11px; color: var(--muted); }
+  .distance-filter input[type=range] { flex: 1; }
+  .tree { font-family: ui-monospace, monospace; font-size: 12px; }
+  .tree .day { color: var(--accent); margin-top: 8px; font-weight: 600; }
+  .tree .item {
+    cursor: pointer; padding: 2px 4px; border-radius: 3px;
+    display: block; color: var(--fg);
+  }
+  .tree .item:hover { background: var(--accent2); }
+  .tree .item.selected { background: var(--accent); color: #fff; }
+  .tree .item .time { color: var(--muted); }
+  .tree .item .loc  { color: var(--muted); font-size: 10px; }
+
+  /* middle: capture + analysis */
+  main {
+    grid-area: middle;
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    overflow: hidden;
+  }
+  .analysis-pane {
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .analysis-header {
+    display: flex; gap: 8px; padding: 8px;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+  }
+  .analysis-header button {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border); padding: 4px 10px;
+    border-radius: 3px; cursor: pointer; font-size: 12px;
+  }
+  .analysis-header button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .analysis-content {
+    flex: 1; overflow: auto; padding: 12px;
+    font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.5;
+    background: var(--bg);
+  }
+  .analysis-content pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+  .analysis-content code { color: var(--fg); }
+  .analysis-content .markdown h1, .analysis-content .markdown h2 { color: var(--accent); margin-top: 16px; }
+  .analysis-content .markdown strong { color: var(--accent); }
+  .analysis-content .markdown em { color: var(--warn); }
+  .capture-pane {
+    display: flex; align-items: center; justify-content: center;
+    background: #000; overflow: hidden;
+  }
+  .capture-pane img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .capture-pane .empty { color: var(--muted); }
+
+  /* right: chat + onboarding */
+  aside.right {
+    grid-area: right;
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .tabs {
+    display: flex; background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .tabs button {
+    flex: 1; background: transparent; color: var(--muted);
+    border: none; padding: 8px; cursor: pointer; font-size: 12px;
+  }
+  .tabs button.active { background: var(--bg2); color: var(--accent); border-bottom: 2px solid var(--accent); }
+  .pane { display: none; flex: 1; overflow: auto; padding: 12px; }
+  .pane.active { display: flex; flex-direction: column; }
+  .onboard-form { display: flex; flex-direction: column; gap: 10px; }
+  .onboard-form label { font-size: 11px; color: var(--muted); }
+  .onboard-form input, .onboard-form select {
+    background: var(--bg); color: var(--fg); border: 1px solid var(--border);
+    padding: 6px 8px; border-radius: 3px; font-family: inherit;
+  }
+  .onboard-form a { color: var(--accent); font-size: 11px; }
+  .onboard-form .provider-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .onboard-form .provider-row input[type=checkbox] { width: auto; }
+  .onboard-form .save-btn {
+    background: var(--accent); color: #fff; border: none;
+    padding: 8px; border-radius: 3px; cursor: pointer; font-weight: 600;
+  }
+  .chat-history { flex: 1; overflow: auto; padding: 4px; }
+  .chat-msg { margin: 6px 0; padding: 8px; border-radius: 6px; max-width: 90%; }
+  .chat-msg.user { background: var(--accent2); margin-left: auto; }
+  .chat-msg.assistant { background: var(--bg); }
+  .chat-msg .role { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+  .chat-msg .meta { font-size: 9px; color: var(--muted); margin-top: 4px; }
+  .chat-input {
+    display: flex; gap: 4px; padding: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .chat-input input {
+    flex: 1; background: var(--bg); color: var(--fg);
+    border: 1px solid var(--border); padding: 6px 8px; border-radius: 3px;
+  }
+  .chat-input button {
+    background: var(--accent); color: #fff; border: none;
+    padding: 6px 14px; border-radius: 3px; cursor: pointer;
+  }
+  .pill {
+    display: inline-block; padding: 2px 8px; border-radius: 99px;
+    font-size: 10px; background: var(--accent2); color: var(--fg);
+    margin-right: 4px;
+  }
+  .pill.ok { background: var(--ok); color: #000; }
+  .pill.off { background: var(--border); color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <span class="brand">TZ Pro Agent</span>
+  <span class="vessel" id="vessel-name">…</span>
+  <span class="spacer"></span>
+  <span class="lan" id="lan-ip"></span>
+</header>
+
+<aside class="left">
+  <div class="distance-filter">
+    <label>Filter within</label>
+    <input type="range" id="distance" min="0" max="50" step="1" value="0">
+    <span id="distance-label">all</span>
+    <label>mi</label>
+  </div>
+  <div class="tree" id="tree">Loading…</div>
+</aside>
+
+<main>
+  <div class="capture-pane" id="capture-pane">
+    <span class="empty">Select a capture on the left.</span>
+  </div>
+  <div class="analysis-pane">
+    <div class="analysis-header">
+      <button data-mode="code" class="active">Markdown (color)</button>
+      <button data-mode="md">Markdown (rendered)</button>
+      <button data-mode="json">Raw JSON</button>
+      <span style="flex:1"></span>
+      <span id="analysis-id" style="font-size:11px;color:var(--muted);"></span>
+    </div>
+    <div class="analysis-content" id="analysis-content">
+      <em style="color:var(--muted);">No capture selected.</em>
+    </div>
+  </div>
+</main>
+
+<aside class="right">
+  <div class="tabs">
+    <button data-tab="chat" class="active">Chat</button>
+    <button data-tab="onboard">Providers</button>
+  </div>
+
+  <div class="pane active" id="pane-chat">
+    <div class="chat-history" id="chat-history"></div>
+    <div class="chat-input">
+      <input id="chat-msg" placeholder="Ask about your captures…" autocomplete="off">
+      <button id="chat-send">Send</button>
+    </div>
+  </div>
+
+  <div class="pane" id="pane-onboard">
+    <div class="onboard-form">
+      <label>Provider</label>
+      <select id="prov-select">
+        <option value="deepinfra">DeepInfra (recommended, free tier)</option>
+        <option value="openai">OpenAI</option>
+        <option value="openrouter">OpenRouter</option>
+        <option value="grok">Grok (xAI)</option>
+        <option value="deepseek">DeepSeek</option>
+        <option value="zai">Z.AI (GLM)</option>
+        <option value="browser_native">Browser native (CDP)</option>
+      </select>
+      <a id="prov-help" href="#" target="_blank">Get an API key →</a>
+
+      <label>API key</label>
+      <input id="prov-key" type="password" placeholder="paste key here">
+
+      <label>Base URL (optional override)</label>
+      <input id="prov-base" type="text" placeholder="leave blank for default">
+
+      <div class="provider-row">
+        <input type="checkbox" id="prov-enable">
+        <label for="prov-enable">Enabled</label>
+      </div>
+
+      <button class="save-btn" id="prov-save">Save to vault</button>
+
+      <hr style="border-color:var(--border);margin:8px 0;">
+
+      <label>Currently enabled</label>
+      <div id="prov-list"></div>
+    </div>
+  </div>
+</aside>
+
+<footer>
+  <span id="status">Loading…</span>
+  <span style="flex:1"></span>
+  <input id="search" placeholder="Jump to date (YYYY-MM-DD) or YYYY-MM-DD HH:MM">
+  <button id="search-btn">Go</button>
+</footer>
+
+<script>
+// --- tiny helpers ----------------------------------------------------------
+async function api(path, opts) {
+  const r = await fetch(path, Object.assign({headers:{'Content-Type':'application/json'}}, opts||{}));
+  if (!r.ok) throw new Error(`${path} -> ${r.status}`);
+  return r.json();
+}
+
+// --- header / health -------------------------------------------------------
+async function loadHeader() {
+  try {
+    const h = await api('/api/health');
+    document.getElementById('vessel-name').textContent = h.vessel;
+    document.getElementById('lan-ip').textContent = `LAN: http://${h.lan_ip}:8090/`;
+    const en = h.providers_enabled.length ? h.providers_enabled.join(', ') : '(none)';
+    document.getElementById('status').innerHTML =
+      `Online · providers: <span class="pill ok">${en}</span>`;
+  } catch (e) {
+    document.getElementById('status').innerHTML = `<span style="color:var(--warn)">offline: ${e}</span>`;
+  }
+}
+
+// --- left: file tree -------------------------------------------------------
+let allCaptures = [];
+let selectedId = null;
+let analysisMode = 'code';
+
+async function loadCaptures() {
+  const data = await api('/api/captures');
+  allCaptures = data.items;
+  renderTree();
+}
+
+function renderTree() {
+  const dist = parseFloat(document.getElementById('distance').value) || 0;
+  document.getElementById('distance-label').textContent = dist === 0 ? 'all' : dist;
+  // Group by day.
+  const byDay = {};
+  for (const c of allCaptures) {
+    (byDay[c.date] = byDay[c.date] || []).push(c);
+  }
+  const html = [];
+  const days = Object.keys(byDay).sort().reverse();
+  for (const d of days) {
+    html.push(`<div class="day">${d}</div>`);
+    for (const c of byDay[d].slice(0, 60)) {
+      const sel = c.id === selectedId ? 'selected' : '';
+      html.push(`<div class="item ${sel}" data-id="${c.id}">
+        <span class="time">${c.time}</span>
+        <span class="loc">${c.location}</span>
+      </div>`);
+    }
+    if (byDay[d].length > 60) {
+      html.push(`<div style="color:var(--muted);font-size:11px;padding-left:8px">+${byDay[d].length - 60} more</div>`);
+    }
+  }
+  if (!days.length) html.push('<em style="color:var(--muted)">No captures yet.</em>');
+  const tree = document.getElementById('tree');
+  tree.innerHTML = html.join('');
+  tree.querySelectorAll('.item').forEach(el => {
+    el.onclick = () => selectCapture(el.dataset.id);
+  });
+}
+
+async function selectCapture(id) {
+  selectedId = id;
+  renderTree();
+  try {
+    const cap = await api('/api/captures/' + encodeURIComponent(id));
+    document.getElementById('analysis-id').textContent = cap.rel_path;
+    const imgEl = document.querySelector('#capture-pane');
+    if (['.png','.jpg','.jpeg'].includes(cap.ext)) {
+      imgEl.innerHTML = `<img src="/api/captures/${encodeURIComponent(id)}/file">`;
+    } else {
+      imgEl.innerHTML = `<span class="empty">.${cap.ext.slice(1)} file (no preview)</span>`;
+    }
+    // Pull the sidecar content for analysis pane.
+    const resp = await fetch(`/api/captures/${encodeURIComponent(id)}/file`);
+    const txt = await resp.text();
+    renderAnalysis(txt, cap.ext);
+  } catch (e) {
+    document.getElementById('analysis-content').innerHTML =
+      `<em style="color:var(--warn)">error: ${e}</em>`;
+  }
+}
+
+function renderAnalysis(text, ext) {
+  const el = document.getElementById('analysis-content');
+  if (ext === '.json') {
+    try {
+      const j = JSON.parse(text);
+      text = JSON.stringify(j, null, 2);
+    } catch {}
+  }
+  if (analysisMode === 'code' || analysisMode === 'md') {
+    const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    if (analysisMode === 'md') {
+      // very tiny markdown -> html (headings, bold, italic, code)
+      let html = safe
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm,  '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm,   '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+        .replace(/`([^`]+)`/g,     '<code>$1</code>')
+        .replace(/\n/g, '<br>');
+      el.innerHTML = `<div class="markdown">${html}</div>`;
+    } else {
+      el.innerHTML = `<pre>${safe}</pre>`;
+    }
+  } else {
+    el.innerHTML = `<pre style="color:var(--warn)">${text.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</pre>`;
+  }
+}
+
+// --- middle header tabs ----------------------------------------------------
+document.querySelectorAll('.analysis-header button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.analysis-header button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    analysisMode = b.dataset.mode;
+    if (selectedId) selectCapture(selectedId);
+  };
+});
+
+// --- right: tabs -----------------------------------------------------------
+document.querySelectorAll('.tabs button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('pane-' + b.dataset.tab).classList.add('active');
+  };
+});
+
+// --- chat -----------------------------------------------------------------
+const chatHistory = [];
+function renderChat() {
+  const el = document.getElementById('chat-history');
+  el.innerHTML = chatHistory.map(m => `
+    <div class="chat-msg ${m.role}">
+      <div class="role">${m.role}</div>
+      <div>${m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>
+      ${m.meta ? `<div class="meta">${m.meta}</div>` : ''}
+    </div>
+  `).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-msg');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  chatHistory.push({role: 'user', content: text});
+  renderChat();
+  try {
+    const r = await api('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({task: 'chat_quick', messages: chatHistory}),
+    });
+    chatHistory.push({
+      role: 'assistant',
+      content: r.content || '(empty)',
+      meta: `${r.provider} / ${r.model}`,
+    });
+  } catch (e) {
+    chatHistory.push({role: 'assistant', content: `error: ${e}`});
+  }
+  renderChat();
+}
+document.getElementById('chat-send').onclick = sendChat;
+document.getElementById('chat-msg').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendChat();
+});
+
+// --- providers onboarding -------------------------------------------------
+const PROVIDER_HELP = {
+  deepinfra: 'https://deepinfra.com/dash/api_keys',
+  openai: 'https://platform.openai.com/api-keys',
+  openrouter: 'https://openrouter.ai/settings/keys',
+  grok: 'https://console.x.ai/',
+  deepseek: 'https://platform.deepseek.com/api_keys',
+  zai: 'https://z.ai/manage-apikey/apikey-list',
+  browser_native: 'https://superinstance.dev/docs/browser-native',
+};
+document.getElementById('prov-select').onchange = (e) => {
+  const url = PROVIDER_HELP[e.target.value] || '#';
+  document.getElementById('prov-help').href = url;
+};
+document.getElementById('prov-select').onchange(
+  document.getElementById('prov-select').onchange
+);
+
+async function loadProviders() {
+  const ps = await api('/api/providers');
+  const html = [];
+  for (const [name, p] of Object.entries(ps)) {
+    const cls = p.enabled ? 'ok' : 'off';
+    html.push(`<span class="pill ${cls}">${name}${p.has_key ? ' 🔑' : ''}</span>`);
+  }
+  document.getElementById('prov-list').innerHTML = html.join(' ');
+}
+document.getElementById('prov-save').onclick = async () => {
+  const name = document.getElementById('prov-select').value;
+  const key = document.getElementById('prov-key').value.trim();
+  const base = document.getElementById('prov-base').value.trim();
+  const enabled = document.getElementById('prov-enable').checked;
+  const cfg = {};
+  if (key) cfg.api_key = key;
+  if (base) cfg.base_url = base;
+  try {
+    await api('/api/providers/' + name, {
+      method: 'POST',
+      body: JSON.stringify({enabled, config: cfg}),
+    });
+    document.getElementById('prov-key').value = '';
+    await loadProviders();
+    await loadHeader();
+    alert(`Saved ${name}`);
+  } catch (e) {
+    alert(`Save failed: ${e}`);
+  }
+};
+
+// --- footer search --------------------------------------------------------
+document.getElementById('search-btn').onclick = () => {
+  const q = document.getElementById('search').value.trim();
+  if (!q) return;
+  // Find first capture whose date starts with q or whose date+time starts with q.
+  const qLower = q.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const hit = allCaptures.find(c => {
+    const d = c.date.replace(/-/g,'');
+    const t = (c.date + ' ' + c.time).replace(/[^a-z0-9]/g,'').toLowerCase();
+    return d.startsWith(qLower) || t.startsWith(qLower);
+  });
+  if (hit) selectCapture(hit.id);
+  else alert(`No capture matching "${q}"`);
+};
+
+// --- boot -----------------------------------------------------------------
+document.getElementById('distance').oninput = renderTree;
+loadHeader();
+loadCaptures();
+loadProviders();
+</script>
+</body>
+</html>

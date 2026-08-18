@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HERMES_VERSION="1.0.0"
+HERMES_TEMPLATES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../templates" && pwd)"
+HERMES_OUT_DIR="${PWD}"
+
+usage() {
+    echo "hermes - Hermes Roblox Construct CLI v${HERMES_VERSION}"
+    echo "Official onboarding tool for SuperInstance Roblox agent/game build pipelines"
+    echo ""
+    echo "Usage: hermes new [PROJECT_NAME] [TEMPLATE]"
+    echo ""
+    echo "Templates:"
+    echo "  resource-farming    - Roblox agent for automated resource farming"
+    echo "  base-building       - Roblox agent for automated base building"
+    echo "  combat              - Roblox agent for automated combat workflows"
+    echo "  automation          - General purpose task automation agent"
+    echo "  shared              - Core shared framework templates"
+    echo ""
+    echo "Example: hermes new my-resource-farm resource-farming"
+    exit 1
+}
+
+case "${1:-}" in
+    new)
+        if [ $# -ne 3 ]; then
+            usage
+        fi
+        PROJECT_NAME="${2}"
+        TEMPLATE="${3}"
+        TEMPLATE_PATH="${HERMES_TEMPLATES_DIR}/${TEMPLATE}"
+        
+        if [ ! -d "${TEMPLATE_PATH}" ]; then
+            echo "❌ Error: Template '${TEMPLATE}' not found!"
+            echo "Available templates:"
+            ls -1 ${HERMES_TEMPLATES_DIR} | grep -v "shared"
+            exit 1
+        fi
+        
+        OUTPUT_PATH="${HERMES_OUT_DIR}/${PROJECT_NAME}"
+        mkdir -p "${OUTPUT_PATH}"
+        cp -r "${TEMPLATE_PATH}/"* "${OUTPUT_PATH}/"
+        
+        # Inject SuperInstance integration hooks
+        sed -i "s/__PROJECT_NAME__/${PROJECT_NAME}/g" ${OUTPUT_PATH}/*.lua
+        sed -i "s/__PROJECT_NAME__/${PROJECT_NAME}/g" ${OUTPUT_PATH}/README.md
+        
+        echo "✅ Successfully created project '${PROJECT_NAME}'!"
+        echo "📂 Output path: ${OUTPUT_PATH}"
+        echo "📚 Quick-start guide: ${OUTPUT_PATH}/README.md"
+        ;;
+    *)
+        usage
+        ;;
+esac

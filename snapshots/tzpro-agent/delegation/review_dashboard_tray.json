@@ -1,0 +1,45 @@
+{
+  "task_id": "review-dashboard-tray-001",
+  "target_files": [
+    "C:\\Users\\casey\\tzpro-agent\\dashboard.py",
+    "C:\\Users\\casey\\tzpro-agent\\tray_app.py",
+    "C:\\Users\\casey\\tzpro-agent\\dashboard\\index.html"
+  ],
+  "findings": [
+    {
+      "file": "C:\\Users\\casey\\tzpro-agent\\dashboard.py",
+      "line": 222,
+      "severity": "bug",
+      "summary": "Day directory reconstruction is wrong: api_capture_one computes `day[:4]` (year) and uses capture_id.split(\"_\")[0] as the second path segment, which mismatches the actual layout `YYYY/YYYY-MM-DD_/`. The result is 404 even when files exist."
+    },
+    {
+      "file": "C:\\Users\\casey\\tzpro-agent\\dashboard.py",
+      "line": 246,
+      "severity": "bug",
+      "summary": "Same bug repeated in api_capture_file. Both endpoints cannot serve real captures today."
+    },
+    {
+      "file": "C:\\Users\\casey\\tzpro-agent\\tray_app.py",
+      "line": 295,
+      "severity": "code-quality",
+      "summary": "Trash import — `import json  # noqa` is placed mid-module instead of at top. Move to the top of file."
+    },
+    {
+      "file": "C:\\Users\\casey\\tzpro-agent\\tray_app.py",
+      "line": 198,
+      "severity": "robustness",
+      "summary": "action_open_captures_folder swallows exception but does not log; if the path is wrong there is no feedback for the user."
+    },
+    {
+      "file": "C:\\Users\\casey\\tzpro-agent\\dashboard\\index.html",
+      "line": 0,
+      "severity": "incomplete-feature",
+      "summary": "The HTML does not actually exist yet — README and earlier turns reference it but the file may be a stub. Verify it implements chat, captures tree, distance slider, and provider onboarding per Phase 1 spec."
+    }
+  ],
+  "verification": {
+    "endpoints_tested": ["/api/captures", "/api/captures/2026-07-22_0751_5547.3757N_13142.7431W"],
+    "endpoints_working": ["/api/captures"],
+    "endpoints_broken": ["/api/captures/{id}", "/api/captures/{id}/file"]
+  }
+}
