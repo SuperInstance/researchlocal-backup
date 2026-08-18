@@ -1,0 +1,30 @@
+{
+  "id": "ensign-glm-flash",
+  "model": "glm-4-flash",
+  "provider": "z.ai",
+  "capabilities": {
+    "description": "Fast GLM model via z.ai. Good for creative and social tasks.",
+    "max_context_tokens": 8192,
+    "preferred_styles": ["creative", "narrative", "balanced"],
+    "energy_budget": 150.0,
+    "max_concurrent_tasks": 5,
+    "response_timeout_ms": 8000
+  },
+  "lifecycle": {
+    "auto_wake": true,
+    "orientation_steps": [
+      "Read room wiki pages",
+      "Check ensign status",
+      "Review recent tiles",
+      "Assess room gravity",
+      "Confirm alert level"
+    ],
+    "stand_down_after_idle_ticks": 60,
+    "escalation_threshold": 3.0
+  },
+  "routing": {
+    "gravity_range": [0.0, 1.0],
+    "preferred_rooms": ["social", "navigation"],
+    "fallback": true
+  }
+}

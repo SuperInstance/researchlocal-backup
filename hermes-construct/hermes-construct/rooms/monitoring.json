@@ -1,0 +1,17 @@
+{
+  "id": "monitoring",
+  "display_name": "Monitoring",
+  "description": "System administration, watchdog alerts, health checks. Cold and fast.",
+  "gravity": -0.8,
+  "gravity_confidence": 0.7,
+  "deadband_tolerance": 0.03,
+  "default_model": "glm-4-flash",
+  "temperature": 0.1,
+  "max_tokens": 1024,
+  "system_prompt_style": "alert",
+  "allowed_modules": ["crackle-runtime", "conservation-checker"],
+  "conservation_budget": 150.0,
+  "max_concurrent_tiles": 3,
+  "timeout_seconds": 60,
+  "escalation_model": "claude-opus-4-8"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "navigation",
+  "display_name": "Navigation",
+  "description": "Route planning, scheduling, logistics. Concise responses, tight budget.",
+  "gravity": -0.3,
+  "gravity_confidence": 0.5,
+  "deadband_tolerance": 0.05,
+  "default_model": "seed-2.0-mini",
+  "temperature": 0.2,
+  "max_tokens": 2048,
+  "system_prompt_style": "concise",
+  "allowed_modules": ["crackle-runtime"],
+  "conservation_budget": 30.0,
+  "max_concurrent_tiles": 2,
+  "timeout_seconds": 120,
+  "escalation_model": "claude-opus-4-8"
+}

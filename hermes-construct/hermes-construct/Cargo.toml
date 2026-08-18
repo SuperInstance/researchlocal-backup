@@ -1,0 +1,51 @@
+[package]
+name = "hermes-construct"
+version = "0.1.0"
+edition = "2021"
+description = "Hermes Construct — tile-operating shell kernel for Oracle ARM"
+
+[lib]
+name = "hermes_construct"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hermes-construct"
+path = "src/main.rs"
+
+[[example]]
+name = "basic_agent"
+path = "examples/basic_agent.rs"
+
+[[example]]
+name = "sandbox_demo"
+path = "examples/sandbox_demo.rs"
+
+[[example]]
+name = "correlation_demo"
+path = "examples/correlation_demo.rs"
+
+[[example]]
+name = "provenance_demo"
+path = "examples/provenance_demo.rs"
+
+[[example]]
+name = "circuit_demo"
+path = "examples/circuit_demo.rs"
+
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+rusqlite = { version = "0.31", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# rustls instead of native-tls: no system OpenSSL dependency, so the binary
+# cross-compiles cleanly to aarch64 and is self-contained on the Oracle ARM box.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "charset", "http2"] }
+teloxide = { version = "0.13", default-features = false, features = ["macros", "rustls"] }
+dotenvy = "0.15"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+log = "0.4"
+env_logger = "0.11"
+thiserror = "1"
+async-trait = "0.1"

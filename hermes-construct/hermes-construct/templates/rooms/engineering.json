@@ -1,0 +1,49 @@
+{
+  "id": "engineering",
+  "type": "engineering",
+  "gravity": -0.3,
+  "gravity_confidence": 0.7,
+  "deadband_tolerance": 0.05,
+  "ensign_id": "ensign-eng",
+  "config": {
+    "description": "Engineering room — handles build, code, fix, and debug tasks",
+    "wiki_pages": [
+      {
+        "title": "System Architecture",
+        "content": "Hermes Construct runs on Oracle ARM. ShellKernel is the main loop. Tiles are the unit of work."
+      },
+      {
+        "title": "Repair Procedures",
+        "content": "Standard repair procedures for common failures. Always check deadband circuits first."
+      },
+      {
+        "title": "Power Distribution",
+        "content": "Main power grid status. Conservation protocol tracks energy budget across all rooms."
+      }
+    ],
+    "controls": [
+      {
+        "name": "run_diagnostics",
+        "description": "Run system diagnostics on a subsystem",
+        "parameters": ["subsystem"]
+      },
+      {
+        "name": "reconfigure",
+        "description": "Reconfigure a subsystem with new parameters",
+        "parameters": ["subsystem", "config"]
+      },
+      {
+        "name": "spawn_zeroclaw",
+        "description": "Spawn a ZeroClaw sub-agent for isolated work",
+        "parameters": ["task", "universe_size"]
+      }
+    ],
+    "help_files": [
+      {
+        "title": "Engineering Commands",
+        "content": "Use 'build', 'code', 'fix', or 'debug' to route to engineering. ZeroClaws run in isolated universes."
+      }
+    ],
+    "keywords": ["build", "code", "fix", "debug", "repair", "engine", "power", "diagnostic", "system"]
+  }
+}

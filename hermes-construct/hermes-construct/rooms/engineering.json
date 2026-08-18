@@ -1,0 +1,17 @@
+{
+  "id": "engineering",
+  "display_name": "Engineering",
+  "description": "Build, debug, and ship code. Higher precision, lower temperature.",
+  "gravity": -0.6,
+  "gravity_confidence": 0.4,
+  "deadband_tolerance": 0.10,
+  "default_model": "glm-4-flash",
+  "temperature": 0.3,
+  "max_tokens": 4096,
+  "system_prompt_style": "precise",
+  "allowed_modules": ["crackle-runtime", "conservation-checker", "cathedral-probe"],
+  "conservation_budget": 75.0,
+  "max_concurrent_tiles": 5,
+  "timeout_seconds": 300,
+  "escalation_model": "claude-opus-4-8"
+}

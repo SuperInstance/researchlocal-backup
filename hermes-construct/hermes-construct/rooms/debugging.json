@@ -1,0 +1,17 @@
+{
+  "id": "debugging",
+  "display_name": "Debugging",
+  "description": "Deep debugging, trace analysis, root cause investigation. Methodical and analytical.",
+  "gravity": -0.7,
+  "gravity_confidence": 0.5,
+  "deadband_tolerance": 0.05,
+  "default_model": "glm-4-flash",
+  "temperature": 0.2,
+  "max_tokens": 4096,
+  "system_prompt_style": "analytical",
+  "allowed_modules": ["crackle-runtime", "conservation-checker", "cathedral-probe"],
+  "conservation_budget": 100.0,
+  "max_concurrent_tiles": 3,
+  "timeout_seconds": 300,
+  "escalation_model": "claude-opus-4-8"
+}

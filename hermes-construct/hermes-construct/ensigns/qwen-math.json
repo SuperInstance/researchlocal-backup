@@ -1,0 +1,17 @@
+{
+  "id": "qwen-math-01",
+  "display_name": "Qwen Math Watch",
+  "model": "qwen3-235b-a22b",
+  "provider": "deepinfra",
+  "cost_per_1k_tokens": 0.002,
+  "alert_level": "yellow",
+  "escalation": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "trigger_threshold": 0.7,
+    "max_escalations_per_hour": 5
+  },
+  "watch_patterns": ["numerical_instability", "conservation_violation", "divergence"],
+  "check_interval_seconds": 30,
+  "max_budget_per_check": 0.015
+}

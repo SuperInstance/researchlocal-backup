@@ -1,0 +1,53 @@
+[Unit]
+Description=Hermes Construct — PLATO agent runtime
+Documentation=https://github.com/OpenClaw/hermes-construct
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hermes
+Group=hermes
+WorkingDirectory=/opt/hermes-construct
+
+# Secrets (tokens/API keys) live here, root-owned 0600. systemd reads this as
+# root during setup, then drops privileges to the hermes user.
+EnvironmentFile=/etc/hermes-construct/hermes.env
+
+# Runtime configuration. Absolute paths so the service is CWD-independent.
+Environment=RUST_LOG=info
+Environment=HERMES_ROOMS_DIR=/opt/hermes-construct/rooms
+Environment=HERMES_ENSIGNS_DIR=/opt/hermes-construct/ensigns
+Environment=HERMES_DB_PATH=/var/lib/hermes-construct/universe.db
+
+ExecStart=/opt/hermes-construct/bin/hermes-construct
+
+# The kernel performs a graceful shutdown on SIGINT (stand down ensigns, save
+# conservation state, checkpoint the WAL). systemd defaults to SIGTERM, so we
+# override it to SIGINT and give the kernel time to finish cleanly.
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+Restart=on-failure
+RestartSec=5
+SyslogIdentifier=hermes-construct
+
+# Persistent state directory: creates/owns /var/lib/hermes-construct (the DB).
+StateDirectory=hermes-construct
+StateDirectoryMode=0750
+
+# --- Hardening ---
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/hermes-construct
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

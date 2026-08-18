@@ -1,0 +1,17 @@
+{
+  "id": "creative",
+  "display_name": "Creative",
+  "description": "Writing, brainstorming, ideation. High temperature, expansive output.",
+  "gravity": 0.7,
+  "gravity_confidence": 0.5,
+  "deadband_tolerance": 0.12,
+  "default_model": "glm-4-flash",
+  "temperature": 0.9,
+  "max_tokens": 4096,
+  "system_prompt_style": "expansive",
+  "allowed_modules": ["crackle-runtime"],
+  "conservation_budget": 100.0,
+  "max_concurrent_tiles": 4,
+  "timeout_seconds": 300,
+  "escalation_model": "claude-opus-4-8"
+}

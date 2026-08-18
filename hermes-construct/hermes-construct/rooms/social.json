@@ -1,0 +1,17 @@
+{
+  "id": "social",
+  "display_name": "Social",
+  "description": "Communication, messaging, interpersonal tasks. Warm tone, relaxed style.",
+  "gravity": 0.5,
+  "gravity_confidence": 0.6,
+  "deadband_tolerance": 0.15,
+  "default_model": "glm-4-flash",
+  "temperature": 0.8,
+  "max_tokens": 2048,
+  "system_prompt_style": "warm",
+  "allowed_modules": ["crackle-runtime"],
+  "conservation_budget": 50.0,
+  "max_concurrent_tiles": 3,
+  "timeout_seconds": 180,
+  "escalation_model": "claude-opus-4-8"
+}

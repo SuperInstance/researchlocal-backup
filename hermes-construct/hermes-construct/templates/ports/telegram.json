@@ -1,0 +1,24 @@
+{
+  "id": "telegram-port",
+  "type": "telegram",
+  "description": "Telegram Bot API port for receiving messages and sending responses",
+  "config": {
+    "bot_token_env": "TELEGRAM_BOT_TOKEN",
+    "polling": true,
+    "allowed_chat_ids": [],
+    "rate_limit": {
+      "messages_per_second": 1,
+      "burst_size": 5
+    },
+    "features": {
+      "markdown_formatting": true,
+      "reply_to_message": true,
+      "reactions": true
+    }
+  },
+  "message_transform": {
+    "strip_commands": false,
+    "command_prefix": "/",
+    "max_message_length": 4096
+  }
+}

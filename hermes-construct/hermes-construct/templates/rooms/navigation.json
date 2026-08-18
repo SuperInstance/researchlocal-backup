@@ -1,0 +1,49 @@
+{
+  "id": "navigation",
+  "type": "navigation",
+  "gravity": 0.1,
+  "gravity_confidence": 0.5,
+  "deadband_tolerance": 0.1,
+  "ensign_id": "ensign-nav",
+  "config": {
+    "description": "Navigation room — handles directions, locations, routing queries",
+    "wiki_pages": [
+      {
+        "title": "Stellar Cartography",
+        "content": "Current star maps and navigation charts. Updated every 6 hours from sensor data."
+      },
+      {
+        "title": "Warp Field Dynamics",
+        "content": "Warp field geometry parameters. Maximum sustainable warp factor depends on current engine status."
+      },
+      {
+        "title": "Subspace Corridors",
+        "content": "Known subspace corridor locations and conditions. Use with caution — conditions change."
+      }
+    ],
+    "controls": [
+      {
+        "name": "plot_course",
+        "description": "Plot a course to a given destination",
+        "parameters": ["destination", "priority"]
+      },
+      {
+        "name": "scan_sector",
+        "description": "Scan a sector for hazards and objects",
+        "parameters": ["sector_id", "scan_depth"]
+      },
+      {
+        "name": " ETA_estimate",
+        "description": "Estimate arrival time at current heading",
+        "parameters": []
+      }
+    ],
+    "help_files": [
+      {
+        "title": "Navigation Commands",
+        "content": "Use 'where is' or 'navigate to' to trigger navigation routing. 'Plot course' for waypoint planning."
+      }
+    ],
+    "keywords": ["navigate", "direction", "where", "location", "map", "course", "ETA", "sector", "heading"]
+  }
+}

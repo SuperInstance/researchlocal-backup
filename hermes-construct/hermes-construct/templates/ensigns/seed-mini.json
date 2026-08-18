@@ -1,0 +1,29 @@
+{
+  "id": "ensign-seed-mini",
+  "model": "seed-2.0-mini",
+  "provider": "deepinfra",
+  "capabilities": {
+    "description": "Lightweight ensign for fast responses. Good for routine tasks and quick routing.",
+    "max_context_tokens": 4096,
+    "preferred_styles": ["precise", "balanced"],
+    "energy_budget": 100.0,
+    "max_concurrent_tasks": 3,
+    "response_timeout_ms": 10000
+  },
+  "lifecycle": {
+    "auto_wake": true,
+    "orientation_steps": [
+      "Read room wiki pages",
+      "Check ensign status",
+      "Review recent tiles",
+      "Confirm alert level"
+    ],
+    "stand_down_after_idle_ticks": 100,
+    "escalation_threshold": 5.0
+  },
+  "routing": {
+    "gravity_range": [-1.0, 0.3],
+    "preferred_rooms": ["engineering", "navigation"],
+    "fallback": true
+  }
+}

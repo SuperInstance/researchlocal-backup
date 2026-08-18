@@ -1,0 +1,49 @@
+{
+  "id": "social",
+  "type": "social",
+  "gravity": 0.5,
+  "gravity_confidence": 0.3,
+  "deadband_tolerance": 0.15,
+  "ensign_id": "ensign-social",
+  "config": {
+    "description": "Social room — handles conversation, storytelling, and casual interaction",
+    "wiki_pages": [
+      {
+        "title": "Crew Directory",
+        "content": "Active crew members and their roles. Use for context in conversations."
+      },
+      {
+        "title": "Recreation Schedule",
+        "content": "Upcoming social events, movie nights, and team-building activities."
+      },
+      {
+        "title": "Ship History",
+        "content": "Notable events and milestones. Good for storytelling context."
+      }
+    ],
+    "controls": [
+      {
+        "name": "organize_event",
+        "description": "Organize a social event for the crew",
+        "parameters": ["event_type", "participants"]
+      },
+      {
+        "name": "tell_story",
+        "description": "Generate a story based on a theme",
+        "parameters": ["theme", "length"]
+      },
+      {
+        "name": "check_morale",
+        "description": "Check current crew morale status",
+        "parameters": []
+      }
+    ],
+    "help_files": [
+      {
+        "title": "Social Commands",
+        "content": "Casual conversation routes here automatically. Try 'tell me a story' or 'how is everyone doing?'."
+      }
+    ],
+    "keywords": ["hello", "story", "chat", "talk", "how are", "feeling", "social", "crew", "morale", "event"]
+  }
+}

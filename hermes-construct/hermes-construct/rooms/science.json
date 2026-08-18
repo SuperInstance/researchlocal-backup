@@ -1,0 +1,17 @@
+{
+  "id": "science",
+  "display_name": "Science",
+  "description": "Explore hypotheses, analyze data, test theories. Higher temperature, wider scope.",
+  "gravity": 0.0,
+  "gravity_confidence": 0.3,
+  "deadband_tolerance": 0.08,
+  "default_model": "glm-4-flash",
+  "temperature": 0.7,
+  "max_tokens": 4096,
+  "system_prompt_style": "exploratory",
+  "allowed_modules": ["crackle-runtime", "spacemap", "negative-space-testing"],
+  "conservation_budget": 200.0,
+  "max_concurrent_tiles": 5,
+  "timeout_seconds": 300,
+  "escalation_model": "claude-opus-4-8"
+}

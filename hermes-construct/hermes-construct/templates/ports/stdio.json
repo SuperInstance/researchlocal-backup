@@ -1,0 +1,22 @@
+{
+  "id": "stdio-port",
+  "type": "stdio",
+  "description": "Standard I/O port for local testing and development. No network required.",
+  "config": {
+    "input": "stdin",
+    "output": "stdout",
+    "prompt": "hermes> ",
+    "echo_input": true
+  },
+  "message_transform": {
+    "strip_commands": false,
+    "command_prefix": "/",
+    "max_message_length": 65536
+  },
+  "notes": [
+    "Used when TELEGRAM_BOT_TOKEN is not set",
+    "Responses print to stdout with [RESPONSE] prefix",
+    "Push messages programmatically via StdioPort::push_message()",
+    "Ideal for integration testing and local development"
+  ]
+}

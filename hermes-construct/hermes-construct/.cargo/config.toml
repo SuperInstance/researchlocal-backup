@@ -1,0 +1,5 @@
+# Cross-compilation config for Oracle ARM (Ampere A1) deployment.
+# Host is x86_64; this points cargo at the aarch64 cross-linker so
+# `cargo build --release --target aarch64-unknown-linux-gnu` links correctly.
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
